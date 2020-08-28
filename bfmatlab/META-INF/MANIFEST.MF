@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.7.0_79-mockbuild_2015_05_14_07_23-b00 (Oracle Corporatio
+ n)
+Main-Class: loci.formats.gui.ImageViewer
+

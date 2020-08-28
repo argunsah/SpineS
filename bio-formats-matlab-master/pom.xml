@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>ome</groupId>
+  <artifactId>bio-formats-matlab</artifactId>
+  <version>5.8.2</version>
+  <packaging>pom</packaging>
+
+  <name>Bio-Formats bundle collection</name>
+  <description>Create matlab of Bio-Formats jars and tools for distribution.</description>
+  <url>https://www.openmicroscopy.org/bio-formats</url>
+  <inceptionYear>2005</inceptionYear>
+
+  <properties>
+    <!-- If two artifacts on the classpath use two different versions of the
+         same dependency, behavior is inconsistent at best, and often broken.
+         The following properties facilitate consistency of dependency
+         versions between various projects in the SciJava software stack.
+         When possible, we advise using the relevant groupId and version
+         properties for your dependencies rather than hardcoding them. -->
+
+    <date>${maven.build.timestamp}</date>
+    <year>2018</year>
+    <project.rootdir>${basedir}</project.rootdir>
+    <bioformats.version>5.8.2</bioformats.version>
+    <bio-formats_package.version>${bioformats.version}</bio-formats_package.version>
+    <imagej1.version>1.48s</imagej1.version>
+    <log4j.version>1.2.17</log4j.version>
+    <slf4j.version>1.7.6</slf4j.version>
+
+    <!-- NB: Avoid platform encoding warning when copying resources. -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- NB: Specify formatting of the maven.build.timestamp property. -->
+    <maven.build.timestamp.format>d MMMMM yyyy</maven.build.timestamp.format>
+
+    <!-- NB: Override argLine property for extra maven-surefire-plugin args. -->
+    <argLine/>
+  </properties>
+
+  <build>
+    <!-- It is nice for "mvn" with no arguments to do something reasonable. -->
+    <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.0.5</version>
+                </requireMavenVersion>
+              </rules> 
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.2</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.5.1</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.scm</groupId>
+            <artifactId>maven-scm-provider-gitexe</artifactId>
+            <version>1.9</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <!-- Build source artifact in addition to main artifact. -->
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Versions Maven plugin -
+           http://mojo.codehaus.org/versions-maven-plugin/
+           Check for new plugin versions using
+           "mvn versions:display-plugin-updates" -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.5</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-ome-xml</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>bioformats_package</artifactId>
+                  <version>${bio-formats_package.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/package-jars</outputDirectory>
+                  <destFileName>bioformats_package.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
+        </configuration>
+        <executions>
+          <execution>
+            <id>matlab-zip</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>bio-formats-matlab-${project.version}</finalName>
+              <descriptors>
+                <descriptor>matlab-assembly.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+          <execution>
+            <id>octave-tar</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>bio-formats-octave-${project.version}</finalName>
+              <descriptors>
+                <descriptor>octave-assembly.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <prerequisites>
+    <maven>3.0.5</maven>
+  </prerequisites>
+
+  <organization>
+    <name>Open Microscopy Environment</name>
+    <url>http://www.openmicroscopy.org/</url>
+  </organization>
+
+  <issueManagement>
+    <system>Trac</system>
+    <url>https://trac.openmicroscopy.org/ome</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://ci.openmicroscopy.org/</url>
+  </ciManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>OME-users</name>
+      <subscribe>http://lists.openmicroscopy.org.uk/mailman/listinfo/ome-users/</subscribe>
+      <unsubscribe>http://lists.openmicroscopy.org.uk/mailman/listinfo/ome-users/</unsubscribe>
+      <post>ome-users@lists.openmicroscopy.org.uk</post>
+      <archive>http://lists.openmicroscopy.org.uk/pipermail/ome-users/</archive>
+    </mailingList>
+    <mailingList>
+      <name>OME-devel</name>
+      <subscribe>http://lists.openmicroscopy.org.uk/mailman/listinfo/ome-devel/</subscribe>
+      <unsubscribe>http://lists.openmicroscopy.org.uk/mailman/listinfo/ome-devel/</unsubscribe>
+      <post>ome-devel@lists.openmicroscopy.org.uk</post>
+      <archive>http://lists.openmicroscopy.org.uk/pipermail/ome-devel/</archive>
+    </mailingList>
+  </mailingLists>
+
+  <scm>
+    <connection>scm:git:git://github.com/ome/bio-formats-matlab</connection>
+    <developerConnection>scm:git:git@github.com:ome/bio-formats-matlab</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://github.com/ome/bio-formats-matlab</url>
+  </scm>
+
+  <!-- NB: for parent project -->
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>unidata.releases</id>
+      <url>https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+    <repository>
+      <id>ome</id>
+      <name>OME Artifactory</name>
+      <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <layout>default</layout>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <distributionManagement>
+    <repository>
+      <id>ome.staging</id>
+      <name>OME Staging Repository</name>
+      <url>https://artifacts.openmicroscopy.org/artifactory/ome.staging</url>
+    </repository>
+    <snapshotRepository>
+      <id>ome.snapshots</id>
+      <name>OME Snapshots Repository</name>
+      <url>https://artifacts.openmicroscopy.org/artifactory/ome.snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <profiles>
+    <profile>
+      <id>test-matlab</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.0.2</version>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>ome</groupId>
+                      <artifactId>bio-formats-matlab</artifactId>
+                      <version>${project.version}</version>
+                      <type>zip</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/test-matlab</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
+            <executions>
+              <execution>
+                <id>run-tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>matlab</executable>
+              <workingDirectory>${java.io.tmpdir}</workingDirectory>
+              <environmentVariables>
+                <MATLABPATH>${project.build.directory}/test-matlab/bio-formats-matlab-${project.version}</MATLABPATH>
+              </environmentVariables>
+              <arguments>
+                <argument>-nodesktop</argument>
+                <argument>-nosplash</argument>
+                <argument>-r</argument>
+                <argument>runtests ${project.rootdir}/test</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
