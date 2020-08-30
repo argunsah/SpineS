@@ -49,3 +49,9 @@ Dendritic Spine Analysis Software
 
 Please check the related paper in order to learn how to use and how to cite: 
 
+Steps:
+
+1: Run install_SpineS.m in command window in SpineS folder.
+2: Run SpineS.m
+3: Change pixel sizes and bit depth in lower right corner before importing a dataset.
+
