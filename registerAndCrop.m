@@ -6,7 +6,7 @@ firstTimePoint = double(max(firstCube,[],3))/double(max(firstCube(:)));
 nTimePoint     = double(max(Icube,[],3))/double(max(Icube(:)));
 
 usfac = 100;
-[output, Greg] = dftregistration(fft2(firstTimePoint),fft2(nTimePoint),usfac);
+[output, Nerd] = dftregistration(fft2(firstTimePoint),fft2(nTimePoint),usfac);
         
 bty = output(3);
 btx = output(4);

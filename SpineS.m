@@ -145,14 +145,14 @@ handles.CropMask = [];
 % Default Values for Image Info
 % These can either be modified here permanently depending on the specs of the
 % microscope you are using or on the SpineS GUI
-handles.xyPixelSizeValue = '0.1038';%'0.0306';%'0.0386';%'0.138';
+handles.xyPixelSizeValue = '0.1018';%'0.0306';%'0.0386';%'0.138';0.1018
 
 % '0.1367';%'0.0193';%'0.0193';%'0.0193';%'0.09';%'0.0193';%'0.0660'; '0.0306';  % micrometer
 % handles.xyPixelSizeValue = '0.0660';%'0.0660';   % micrometer
-handles.zSpacingValue    = '0.43';%'0.408';
+handles.zSpacingValue    = '0.44';%'0.408';
 % .3;%0.23;%'0.3';%'0.3';%'0.23';     % micrometer
 % handles.zSpacingValue    = '0.23';%'0.23';       % micrometer
-handles.bitDepthValue    = '16';
+handles.bitDepthValue    = '13';
 % '12';%'16';%'12';%'12';%'16'; '8';        % bits
 % handles.bitDepthValue    = '16';%'16';      % bits
 
@@ -317,6 +317,8 @@ h_MIP         = waitbar(0, 'Maximum Intensity Projection and Registration in Pro
 shiftX(1)     = 0;
 shiftY(1)     = 0;
 
+allMedianFlor = zeros(1,handles.stackSize);
+
 for i = 1:handles.stackSize   
 
     waitbar(i/handles.stackSize,h_MIP);
@@ -324,9 +326,22 @@ for i = 1:handles.stackSize
     rTemp = bfopen(D1{i});
     zSize = size(rTemp{1,1},1);
     
+    clear Icube;
     for z = 1:zSize       
         Icube(:,:,z) = rTemp{1,1}{z,1};
     end
+    
+    if max(size(Icube,2),size(Icube,1))<768
+        Icube = imresize(Icube,2);
+        if i == 1
+            handles.xyPixelSizeValue = num2str(str2double(handles.xyPixelSizeValue)/2);
+            set(handles.xyPixelSize,'String',handles.xyPixelSizeValue);
+            handles.xPixelSizeVal = str2double(handles.xyPixelSizeValue);
+        end
+    end
+        
+    allMedianFlor(i) = medianFlor(Icube);
+    Icube = (double(Icube)/allMedianFlor(i))*allMedianFlor(1);
     
     if i == 1
         icubeOne = Icube;
@@ -476,10 +491,14 @@ h_MIP                 = waitbar(0, 'Maximum Intensity Projection and Registratio
 shiftX(1) = 0;
 shiftY(1) = 0;
 
+allMedianFlor = zeros(1,handles.stackSize);
+
 for i = 1:handles.stackSize
 
     waitbar(i/handles.stackSize,h_MIP);
     
+    clear Icube;
+
     % Read tif image series and write in raw folder
     Icube = importRawStack(handles.pathRawStacks{i}, handles, hObject, i);
     
@@ -487,6 +506,18 @@ for i = 1:handles.stackSize
         icubeOne = Icube;
         save(fullfile(handles.foldername,'3DStacks','Registered',sprintf('raw_%d.mat',i)),'Icube');
     end
+    
+    if max(size(Icube,2),size(Icube,1))<768
+        Icube = imresize(Icube,2);
+        if i == 1
+            handles.xyPixelSizeValue = num2str(str2double(handles.xyPixelSizeValue)/2);
+            set(handles.xyPixelSize,'String',handles.xyPixelSizeValue);
+            handles.xPixelSizeVal = str2double(handles.xyPixelSizeValue);
+        end
+    end
+
+    allMedianFlor(i) = medianFlor(Icube);
+    Icube = (double(Icube)/allMedianFlor(i))*allMedianFlor(1);
     
     if i > 1
         [Icube,shiftY(i),shiftX(i)] = registerAndCrop(Icube,icubeOne);
@@ -2558,7 +2589,9 @@ for t = 1:handles.stackSize
         
         for spine_num = 1:handles.spineCounter
             
-            waitbar(spine_num/handles.spineCounter,h_neck);
+            if ~isempty(h_neck)
+                waitbar(spine_num/handles.spineCounter,h_neck);
+            end
             set(handles.statusWin,'String',sprintf('Spine Neck Computation in Progress, Time Point : %d; Spine Number : %d',t,spine_num));
 
             try               
@@ -2787,10 +2820,14 @@ for t = 1:handles.stackSize
             
         end
         
-        delete(h_neck);
+        if ~isempty(h_neck)
+            delete(h_neck);
+        end
 end
 
-delete(h_neck);
+if ~isempty(h_neck)
+    delete(h_neck);
+end
 
 handles.Flags.autoNeckLegth = 1;
 
@@ -3870,6 +3907,9 @@ seg_img_correct         = imread(imName_Full_dend);
 
 figure;
 imshow(img_Full,[]);
+
+se = strel('disk',5);
+seg_img_correct = imclose(seg_img_correct,se);
 
 seg_im_perim            = bwperim(seg_img_correct, 8);
 [B,L]                   = bwboundaries(seg_im_perim,'noholes');
