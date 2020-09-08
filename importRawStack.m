@@ -11,6 +11,8 @@ function Icube = importRawStack(D1, handles, hObject, i)
 
 set(handles.statusWin,'String','Loading stacks...');
 
+%[folder,name,ext] = fileparts(D1);
+
 Icube = [];
 D2 = dir(fullfile(D1, '*.ti*'));
 
