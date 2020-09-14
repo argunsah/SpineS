@@ -53,5 +53,5 @@ Steps:
 
 1: Run install_SpineS.m in command window in SpineS folder.
 2: Run SpineS.m
-3: Change pixel sizes and bit depth in lower right corner before importing a dataset.
+3: Change pixel sizes (x- and y- pixel size in micrometers, z-spacing between z-slices in micrometers) and bit depth in lower right corner before importing a dataset. Play with the bit depth value to get the optimum results.
 
