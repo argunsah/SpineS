@@ -47,7 +47,7 @@ Dendritic Spine Analysis Software
 
 
 
-Please check the related paper in order to learn how to use and how to cite: 
+Please check the related paper in order to learn how to use and cite: https://doi.org/10.1101/2020.09.12.294546
 
 Steps:
 
