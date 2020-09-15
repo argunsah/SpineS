@@ -1,17 +1,23 @@
 # SpineS
 Dendritic Spine Analysis Software
 
-# Please check the related paper in order to learn how to use and cite: https://www.biorxiv.org/content/10.1101/2020.09.12.294546v2
+Please check the related paper in order to learn how to use and cite: https://www.biorxiv.org/content/10.1101/2020.09.12.294546v2
 
-# Steps to Analyze a Dataset:
+Steps to Analyze a Dataset:
 
-#1: Start Matlab.
-#2: Change the Current Path of Matlab to SpineS folder.
-#3: Run install_SpineS.m in command window while in SpineS folder.
-#4: Run SpineS.m  while in SpineS folder.
-#5: Change pixel sizes (x- and y- pixel size in micrometers, z-spacing between z-slices in micrometers) and bit depth in lower right corner before importing a dataset. Play with the bit depth value to get the optimum results. (i.e. 11 bits might give better results sometimes even if your images are collected 12 bits. This is not going alter the volume and neck measurements, it is just to improve segmentation performence)
-#6: Read the paper. 
-#7: Send an e-mail to the first author if you face any problems.
+1: Start Matlab.
+
+2: Change the Current Path of Matlab to SpineS folder.
+
+3: Run install_SpineS.m in command window while in SpineS folder.
+
+4: Run SpineS.m  while in SpineS folder.
+
+5: Change pixel sizes (x- and y- pixel size in micrometers, z-spacing between z-slices in micrometers) and bit depth in lower right corner before importing a dataset. Play with the bit depth value to get the optimum results. (i.e. 11 bits might give better results sometimes even if your images are collected 12 bits. This is not going alter the volume and neck measurements, it is just to improve segmentation performence)
+
+6: Read the paper. 
+
+7: Send an e-mail to the first author if you face any problems.
 
 
 % Main Developers
