@@ -100,10 +100,10 @@ handles.stack                       = [];
 handles.text10                      = [];
 
 % Initialize Flags
-handles.Flags.importStack           = 0;
-handles.Flags.importTwoD            = 0;
-handles.Flags.PCcalculateMIP        = 0;
-handles.Flags.importPCS             = 0;
+handles.Flags.importStack              = 0;
+handles.Flags.importTwoD               = 0;
+handles.Flags.PCcalculateMIP           = 0;
+handles.Flags.importPCS                = 0;
  
 handles.Flags.calculateMIP          = 0;
 handles.Flags.adaptiveMIP           = 0;
@@ -145,14 +145,14 @@ handles.CropMask = [];
 % Default Values for Image Info
 % These can either be modified here permanently depending on the specs of the
 % microscope you are using or on the SpineS GUI
-handles.xyPixelSizeValue = '0.1018';%'0.0306';%'0.0386';%'0.138';0.1018
+handles.xyPixelSizeValue = '0.0193';%'0.0306';%'0.0386';%'0.138';0.1018
 
 % '0.1367';%'0.0193';%'0.0193';%'0.0193';%'0.09';%'0.0193';%'0.0660'; '0.0306';  % micrometer
 % handles.xyPixelSizeValue = '0.0660';%'0.0660';   % micrometer
-handles.zSpacingValue    = '0.44';%'0.408';
+handles.zSpacingValue    = '0.3';%'0.408';
 % .3;%0.23;%'0.3';%'0.3';%'0.23';     % micrometer
 % handles.zSpacingValue    = '0.23';%'0.23';       % micrometer
-handles.bitDepthValue    = '13';
+handles.bitDepthValue    = '12';
 % '12';%'16';%'12';%'12';%'16'; '8';        % bits
 % handles.bitDepthValue    = '16';%'16';      % bits
 
@@ -220,8 +220,8 @@ function dendCrop_Callback(hObject, eventdata, handles)
 cropIm            = imread(fullfile(handles.MIPfoldername,'MIP_average.png'));
 handles.cropImFig = figure; imshow(cropIm,[]);
  
-h           = impoly;
-position    = wait(h); 
+h = drawpolygon;
+position = h.Position;
    
 x1          = min(position(:, 1));
 x2          = max(position(:, 1));
@@ -750,7 +750,7 @@ else
         Zimage          = load(fileNameZ);   
         imFilt          = medfilt2(im,[handles.filterSize handles.filterSize]);
         
-        imwrite(imFilt, fullfile(handles.MIPfoldername,sprintf('MIP_filtered_%d.png',k)));
+        imwrite(imFilt, fullfile(handles.MIPfoldername,sprintf('MIP_Filtered_%d.png',k)));
         
         smoothingParam  = 15;
         
@@ -811,7 +811,7 @@ else
     for timeCount = 1:handles.stackSize
 
         imFiltered = imread(fullfile(folderName,...
-            sprintf('%s%d%s','MIP_filtered_',timeCount,'.png')));
+            sprintf('%s%d%s','MIP_Filtered_',timeCount,'.png')));
 
         handles.ROIdend{timeCount} = imread(fullfile(folderName,...
             sprintf('%s%d%s','segmentedDendrite_',timeCount,'.png')));
@@ -1003,7 +1003,7 @@ elseif (handles.Flags.medianFilter == 0)
 else
         errSpines  = 0;
         folderName = handles.MIPfoldername;
-        imageFixed = imread(fullfile(folderName,'MIP_filtered_1.png'));
+        imageFixed = imread(fullfile(folderName,'MIP_Filtered_1.png'));
 
         for i = 1:handles.spineCounter
 
@@ -1039,7 +1039,7 @@ else
 
         if handles.stackSize == 1
 
-            imageFixed        = imread(fullfile(folderName,'MIP_filtered_1.png'));
+            imageFixed        = imread(fullfile(folderName,'MIP_Filtered_1.png'));
             imageMoving       = imageFixed;
             handles.dendPiece = imread(fullfile(folderName,'segmentedDendrite_1.png'));
             
@@ -1100,8 +1100,8 @@ else
 
                 waitbar(i/handles.stackSize,h_MIP);
 
-                imageFixed        = imread(fullfile(folderName,sprintf('MIP_filtered_%d.png',i)));
-                imageMoving       = imread(fullfile(folderName,'MIP_filtered_1.png'));
+                imageFixed        = imread(fullfile(folderName,sprintf('MIP_Filtered_%d.png',i)));
+                imageMoving       = imread(fullfile(folderName,'MIP_Filtered_1.png'));
                 handles.dendPiece = imread(fullfile(folderName,sprintf('segmentedDendrite_%d.png',i)));
                 
                 [handles.ROIlist(:,i) imRoi roiCoords] =...
@@ -1165,7 +1165,9 @@ else
         end
 end
 
-delete(h_MIP);
+if exist('h_MIP','var')
+   delete(h_MIP);
+end
 
 handles.Flags.segRegSIFT    = 1;
 handles.Flags.autoSegmented = 1;
@@ -1763,7 +1765,7 @@ function importStudy_Callback(hObject, eventdata, handles)
 %  
 % fwhmIm = getimage;
 %  
-% handles.fwhmRect = imrect;
+% handles.fwhmRect = drawrectangle;
 %  
 % pos = getPosition(handles.fwhmRect);
 %  
@@ -1775,7 +1777,7 @@ function importStudy_Callback(hObject, eventdata, handles)
 % clear pos;
 % clear fwhmRegion;
 % clear fwhmVal;
-% clear handles.imrect;
+% clear handles.drawrectangle;
 %  
 % fwhmRegion = fwhmIm(yMin:(yMin+height),xMin:(xMin+width));
 % axes(handles.axes3);
@@ -2049,7 +2051,7 @@ imshow(rotated_roi,[]);
 % set(gca, 'units','normalized', 'outerposition',[0.2 0.3 .5 .2]);
 
 fwhmIm           = getimage;
-handles.fwhmRect = imrect;
+handles.fwhmRect = drawrectangle;
 pos              = getPosition(handles.fwhmRect);
  
 xMin   = floor(pos(1));
@@ -2060,7 +2062,7 @@ height = floor(pos(4));
 clear pos;
 clear fwhmRegion;
 clear fwhmVal;
-clear handles.imrect;
+clear handles.drawrectangle;
  
 fwhmRegion = fwhmIm(yMin:(yMin+height),xMin:(xMin+width));
 
@@ -2595,7 +2597,7 @@ for t = 1:handles.stackSize
             set(handles.statusWin,'String',sprintf('Spine Neck Computation in Progress, Time Point : %d; Spine Number : %d',t,spine_num));
 
             try               
-                filteredImage         = imread(fullfile(handles.foldername,'MIP',sprintf('%s%d%s','MIP_filtered_',t,'.png')));
+                filteredImage         = imread(fullfile(handles.foldername,'MIP',sprintf('%s%d%s','MIP_Filtered_',t,'.png')));
                 spine_image           = imread(fullfile(handles.Segfoldername,'Automatic', sprintf('spine%d', spine_num),sprintf('ROI_%d%s',t,'.png')));
                 spine_segment_big     = imread(fullfile(handles.Segfoldername,'Automatic', sprintf('spine%d', spine_num),sprintf('binary_k_3_%d%s',t,'.png')));
                 spine_segment_small   = imread(fullfile(handles.Segfoldername,'Automatic', sprintf('spine%d', spine_num),sprintf('binary_roi_k_3_%d%s',t,'.png')));
@@ -2738,7 +2740,8 @@ for t = 1:handles.stackSize
                 figure, imshow(imresize(compositeImage,1),[]);
                 set(gca,'YDir','normal');
                 axis off;
-                export_fig(fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)));
+                %export_fig(fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)));
+                saveas(gcf, fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)),'png')
                 close;
     
                 linearIndexes = find(justNeck);
@@ -3138,7 +3141,8 @@ compositeImage = cat(3, B+A, A, C+A);
 figure, imshow(imresize(compositeImage,1),[]);
 set(gca,'YDir','normal');
 axis off;
-export_fig(fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)));
+%export_fig(fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)));
+saveas(gcf, fullfile(handles.foldername,'Neck',sprintf('spineNeck_%d_%d.png',spine_num,t)),'png')
 close;
 %%
 %%
@@ -3582,7 +3586,7 @@ set(handles.textSpine,'String',sp);
 % set(gca, 'units','normalized', 'outerposition',[0.2 0.3 .5 .2]);
  
 fwhmIm           = getimage;
-handles.fwhmRect = imrect;
+handles.fwhmRect = drawrectangle;
  
 pos    = getPosition(handles.fwhmRect);
  
@@ -3594,7 +3598,7 @@ height = floor(pos(4));
 clear pos;
 clear fwhmRegion;
 clear fwhmVal;
-clear handles.imrect;
+clear handles.drawrectangle;
  
 fwhmRegion = fwhmIm(yMin:(yMin+height),xMin:(xMin+width));
 
@@ -3671,7 +3675,7 @@ imshow(rotated_roi,[]);
 % set(gca, 'units','normalized', 'outerposition',[0.2 0.3 .5 .2]);
  
 fwhmIm           = getimage;
-handles.fwhmRect = imrect;
+handles.fwhmRect = drawrectangle;
 pos              = getPosition(handles.fwhmRect);
  
 xMin   = floor(pos(1));
@@ -3682,7 +3686,7 @@ height = floor(pos(4));
 clear pos;
 clear fwhmRegion;
 clear fwhmVal;
-clear handles.imrect;
+clear handles.drawrectangle;
  
 fwhmRegion = fwhmIm(yMin:(yMin+height),xMin:(xMin+width));
 % axes(handles.axes3);
