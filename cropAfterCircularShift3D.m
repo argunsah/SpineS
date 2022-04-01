@@ -82,6 +82,14 @@ if miny >= 0 && maxy > 0
     y2 = imSizeY;
 end
 
+if y1<1
+    y1 = 1;
+end
+
+if x1<1
+    x1 = 1;
+end
+
 imCropped = imStack(y1:y2,x1:x2,:);
 
 
